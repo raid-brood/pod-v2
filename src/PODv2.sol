@@ -5,7 +5,12 @@ import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-contract ProofOfDrinkV2 is ERC1155, Ownable {
+/**
+ * @title PODv2
+ * @author geovgy
+ * @notice The Proof of Drink contract, 2nd edition
+ */
+contract PODv2 is ERC1155, Ownable {
     mapping(uint256 id => bytes32 root) internal _merkleRoots;
     mapping(uint256 id => string uri) internal _tokenURIs;
     mapping(uint256 id => mapping(string claimCode => bool)) internal _claimed;
@@ -17,6 +22,14 @@ contract ProofOfDrinkV2 is ERC1155, Ownable {
     event TokenURISet(uint256 indexed id, string uri);
 
     constructor(address _owner) ERC1155("") Ownable(_owner) {}
+
+    function merkleRootOf(uint256 id) external view returns (bytes32) {
+        return _merkleRoots[id];
+    }
+
+    function uri(uint256 id) public view override virtual returns (string memory) {
+        return _tokenURIs[id];
+    }
 
     function claim(
         address account, 
@@ -35,28 +48,31 @@ contract ProofOfDrinkV2 is ERC1155, Ownable {
         emit Claimed(account, id, claimCode);
     }
 
-    function create(bytes32 root, string calldata uri) external onlyOwner {
+    function create(bytes32 root, string calldata uri_) external onlyOwner returns (uint256 id) {
         _idCounter++;
-        _merkleRoots[_idCounter] = root;
-        _tokenURIs[_idCounter] = uri;
-        emit Created(_idCounter, root, uri);
+        id = _idCounter;
+        _setMerkleRoot(id, root);
+        _setTokenURI(id, uri_);
+        emit Created(id, root, uri_);
     }
 
     function setMerkleRoot(uint256 id, bytes32 root) external onlyOwner {
+        require(id <= _idCounter, "ProofOfDrink: Invalid id");
         _setMerkleRoot(id, root);
         emit MerkleRootSet(id, root);
     }
 
-    function setTokenURI(uint256 id, string calldata uri) external onlyOwner {
-        _setTokenURI(id, uri);
-        emit TokenURISet(id, uri);
+    function setTokenURI(uint256 id, string calldata uri_) external onlyOwner {
+        require(id <= _idCounter, "ProofOfDrink: Invalid id");
+        _setTokenURI(id, uri_);
+        emit TokenURISet(id, uri_);
     }
 
     function _setMerkleRoot(uint256 id, bytes32 root) internal {
         _merkleRoots[id] = root;
     }
 
-    function _setTokenURI(uint256 id, string calldata uri) internal {
-        _tokenURIs[id] = uri;
+    function _setTokenURI(uint256 id, string calldata uri_) internal {
+        _tokenURIs[id] = uri_;
     }
 }
