@@ -12,3 +12,6 @@ docs/
 
 # Dotenv file
 .env
+
+# node nodules
+node_modules/

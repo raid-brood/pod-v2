@@ -40,7 +40,7 @@ contract PODv2 is ERC1155, Ownable {
         require(_merkleRoots[id] != 0, "ProofOfDrink: Merkle root not set");
         require(!_claimed[id][claimCode], "ProofOfDrink: Claim code already used");
         require(
-            MerkleProof.verify(proof, _merkleRoots[id], keccak256(abi.encodePacked(claimCode))), 
+            MerkleProof.verify(proof, _merkleRoots[id], _toLeaf(claimCode)), 
             "ProofOfDrink: Invalid proof"
         );
         _claimed[id][claimCode] = true;
@@ -74,5 +74,9 @@ contract PODv2 is ERC1155, Ownable {
 
     function _setTokenURI(uint256 id, string calldata uri_) internal {
         _tokenURIs[id] = uri_;
+    }
+
+    function _toLeaf(string calldata claimCode) internal pure returns (bytes32) {
+        return keccak256(bytes.concat(keccak256(abi.encode(claimCode))));
     }
 }
