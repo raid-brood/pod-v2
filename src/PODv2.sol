@@ -23,6 +23,10 @@ contract PODv2 is ERC1155, Ownable {
 
     constructor(address _owner) ERC1155("") Ownable(_owner) {}
 
+    function hasClaimed(uint256 id, string calldata claimCode) external view returns (bool) {
+        return _claimed[id][claimCode];
+    }
+
     function merkleRootOf(uint256 id) external view returns (bytes32) {
         return _merkleRoots[id];
     }

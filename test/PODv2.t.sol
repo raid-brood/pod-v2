@@ -118,4 +118,22 @@ contract PODv2Test is Test {
         vm.expectRevert();
         pod.claim(recipient, 2, claimCodes[0], merkleProof); // id 2 not created yet
     }
+
+    function test_hasClaimed() public {
+        address recipient = address(0x420);
+        
+        vm.prank(owner);
+        uint256 id = pod.create(merkleRoot, "ipfs://testtesttest");
+
+        // Should return false
+        bool claimed = pod.hasClaimed(id, claimCodes[0]);
+        assertFalse(claimed);
+
+        // Should execute
+        pod.claim(recipient, 1, claimCodes[0], merkleProof);
+
+        // Should return true
+        claimed = pod.hasClaimed(id, claimCodes[0]);
+        vm.assertTrue(claimed);
+    }
 }
