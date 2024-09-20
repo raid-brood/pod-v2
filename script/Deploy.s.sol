@@ -6,10 +6,12 @@ import {PODv2} from "../src/PODv2.sol";
 
 contract Deploy is Script {
     address constant EXPECTED_POD = 0xB00B5D137709a301283E225e536E85882Cfadd55;
-    address constant ownerSafe = vm.envAddress("OWNER_ADDRESS");
 
     function run() public {
         console2.log("Deploying on chain ID", block.chainid);
+        
+        address ownerSafe = vm.envAddress("OWNER_ADDRESS");
+        console2.log("Owner address", ownerSafe);
 
         if (EXPECTED_POD.code.length == 0) {
             uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
